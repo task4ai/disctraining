@@ -1,0 +1,6 @@
+{
+  "name": "Libyan Feasibility Study Platform",
+  "description": "An AI-powered feasibility study and financial modeling platform designed for the Libyan market, producing investment-grade reports.",
+  "requestFramePermissions": [],
+  "majorCapabilities": ["MAJOR_CAPABILITY_SERVER_SIDE_GEMINI_API"]
+}

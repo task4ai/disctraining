@@ -5,9 +5,10 @@ import { YearProjection, StartupCostItem } from '../types';
 interface ChartProps {
   projections: YearProjection[];
   startupCosts: StartupCostItem[];
+  language?: string;
 }
 
-export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) {
+export function InteractiveSvgCharts({ projections, startupCosts, language = 'en' }: ChartProps) {
   const [hoveredBarIndex, setHoveredBarIndex] = useState<number | null>(null);
   const [hoveredPieIndex, setHoveredPieIndex] = useState<number | null>(null);
 
@@ -84,22 +85,24 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
   });
 
   return (
-    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8">
+    <div className="grid grid-cols-1 lg:grid-cols-2 gap-8 text-start" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* 5-Year Cash Flow Projections */}
       <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
         <div className="flex flex-col sm:flex-row justify-between items-start sm:items-center gap-2 mb-6">
           <div>
-            <h3 className="text-sm font-bold tracking-wide text-slate-805 uppercase font-sans">
-              Financial Projections (5-Year Cycle)
+            <h3 className="text-sm font-bold tracking-wide text-slate-800 uppercase font-sans">
+              {language === 'ar' ? 'التوقعات المالية المستقبلية (دورة ممتدة لـ 5 سنوات)' : 'Financial Projections (5-Year Cycle)'}
             </h3>
-            <p className="text-xs text-slate-500 mt-1 font-sans">Comparing Gross Revenue vs Operating Costs (LYD)</p>
+            <p className="text-xs text-slate-500 mt-1 font-sans">
+              {language === 'ar' ? 'مقارنة بين الإيرادات الإجمالية مقابل التكاليف التشغيلية (د.ل)' : 'Comparing Gross Revenue vs Operating Costs (LYD)'}
+            </p>
           </div>
           <div className="flex gap-4 text-xs font-mono">
             <span className="flex items-center gap-1.5 text-slate-600">
-              <span className="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> Revenue
+              <span className="w-2.5 h-2.5 rounded-sm bg-amber-500"></span> {language === 'ar' ? 'الإيرادات' : 'Revenue'}
             </span>
             <span className="flex items-center gap-1.5 text-slate-600">
-              <span className="w-2.5 h-2.5 rounded-sm bg-slate-300"></span> Expenses
+              <span className="w-2.5 h-2.5 rounded-sm bg-slate-300"></span> {language === 'ar' ? 'المصاريف التشغيلية' : 'Expenses'}
             </span>
           </div>
         </div>
@@ -183,7 +186,7 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
                     transition={{ duration: 0.5, delay: idx * 0.05 }}
                   />
 
-                  {/* Year Label */}
+                   {/* Year Label */}
                   <text 
                     x={xCenter} 
                     y={chartHeight - 15} 
@@ -192,7 +195,7 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
                     fontFamily="monospace"
                     textAnchor="middle"
                   >
-                    Year {p.year}
+                    {language === 'ar' ? `السنة ${p.year}` : `Year ${p.year}`}
                   </text>
 
                   {/* Value Tooltip above bars if hovered */}
@@ -216,7 +219,9 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
                         fontFamily="monospace"
                         textAnchor="middle"
                       >
-                        Rev: {p.revenueLYD.toLocaleString()} | Exp: {p.operatingExpensesLYD.toLocaleString()}
+                        {language === 'ar' 
+                          ? `إيراد: ${p.revenueLYD.toLocaleString()} | مصروف: ${p.operatingExpensesLYD.toLocaleString()}`
+                          : `Rev: ${p.revenueLYD.toLocaleString()} | Exp: ${p.operatingExpensesLYD.toLocaleString()}`}
                       </text>
                     </g>
                   )}
@@ -240,9 +245,11 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
       {/* Startup Cost Structure Pie Chart */}
       <div className="bg-white border border-slate-200 p-6 rounded-2xl shadow-sm">
         <h3 className="text-sm font-bold tracking-wide text-slate-805 uppercase font-sans mb-1">
-          Required Startup Capital Allocation
+          {language === 'ar' ? 'هيكل توزيع رأس المال التأسيسي للأصول (CapEx)' : 'Required Startup Capital Allocation'}
         </h3>
-        <p className="text-xs text-slate-500 mb-6 font-sans">Total calculated: {totalCapital.toLocaleString()} LYD</p>
+        <p className="text-xs text-slate-500 mb-6 font-sans">
+          {language === 'ar' ? `إجمالي الموازنة العامة المحسوبة: ${totalCapital.toLocaleString()} دينار ليبي` : `Total calculated: ${totalCapital.toLocaleString()} LYD`}
+        </p>
 
         <div className="grid grid-cols-1 md:grid-cols-12 gap-4 items-center">
           {/* Pie Chart SVG */}
@@ -278,7 +285,7 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
                 fontFamily="sans-serif"
                 textAnchor="middle"
               >
-                TOTAL
+                {language === 'ar' ? 'الإجمالي' : 'TOTAL'}
               </text>
               <text 
                 x="100" 
@@ -300,6 +307,19 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
           <div className="col-span-1 md:col-span-7 flex flex-col gap-2.5 max-h-[180px] overflow-y-auto">
             {pieSlices.map((slice, idx) => {
               const isSelected = hoveredPieIndex === idx;
+              const getCategoryLabel = (cat: string) => {
+                if (language !== 'ar') return cat;
+                switch (cat) {
+                  case 'Equipment': return 'الآلات والمعدات والآليات';
+                  case 'Licensing & Legal': return 'التراخيص ومصاريف التأسيس القانونية';
+                  case 'Real Estate & Facility': return 'الأراضي والمنشآت وتجهيز الموقع';
+                  case 'Working Capital': return 'رأس المال العامل للدورة الأولى';
+                  case 'Marketing': return 'التسويق والدعاية وإشهار الهوية';
+                  case 'Generator & Power': return 'المولدات والمحروقات الاحتياطية';
+                  case 'Contingency': return 'الاحتياطي والخطط الطارئة';
+                  default: return cat;
+                }
+              };
               return (
                 <div 
                   key={idx} 
@@ -314,8 +334,8 @@ export function InteractiveSvgCharts({ projections, startupCosts }: ChartProps) 
                       className="w-2.5 h-2.5 rounded-full block shrink-0" 
                       style={{ backgroundColor: slice.color }}
                     ></span>
-                    <span className="text-xs text-slate-700 font-sans truncate max-w-[130px]" title={slice.name}>
-                      {slice.name}
+                    <span className="text-xs text-slate-700 font-sans truncate max-w-[200px]" title={getCategoryLabel(slice.name)}>
+                      {getCategoryLabel(slice.name)}
                     </span>
                   </div>
                   <span className="text-xs font-mono font-semibold text-slate-500">

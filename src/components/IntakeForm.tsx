@@ -2,6 +2,7 @@ import React, { useState } from 'react';
 import { motion, AnimatePresence } from 'motion/react';
 import { ScaleType, ExchangeRateMode } from '../types';
 import { Sparkles, ArrowRight, ArrowLeft, Building2, MapPin, Landmark, LibraryBig, AlertTriangle } from 'lucide-react';
+import { translations } from '../translations';
 
 interface IntakeProps {
   onSubmit: (data: {
@@ -16,9 +17,10 @@ interface IntakeProps {
   }) => Promise<void>;
   onCancel: () => void;
   submitting: boolean;
+  language?: 'en' | 'ar';
 }
 
-export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
+export function IntakeForm({ onSubmit, onCancel, submitting, language = 'ar' }: IntakeProps) {
   const [step, setStep] = useState(1);
   const [name, setName] = useState('');
   const [industry, setIndustry] = useState('Agriculture');
@@ -29,6 +31,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
   const [discountRate, setDiscountRate] = useState(0.12);
   const [powerGridBackupRequired, setPowerGridBackupRequired] = useState(true);
 
+  const t = translations[language];
   const stepsCount = 4;
 
   const nextStep = () => {
@@ -54,36 +57,25 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
     });
   };
 
-  // Localized City Parameters guide
   const getCityInsight = (selectedCity: string) => {
-    switch (selectedCity) {
-      case 'Tripoli': return 'Capital metropolis. Maximum consumer addressability, high density of retail distribution, but intense competition.';
-      case 'Benghazi': return 'Major commercial hub. Rapid economic development, substantial infrastructure zoning, with supportive trade chambers.';
-      case 'Misrata': return 'Industrial powerhouse. Access to the Free Zone, tax privileges, premier deep seaport, with excellent shipping lanes.';
-      case 'Sabha': return 'Fezzan capital. Optimal solar photovoltaic zenith rating, extensive agricultural aquifers, but remote logistical supply routes.';
-      case 'Gharyan': return 'Hilly region. Highly strategic agricultural climate, supreme premium organic olive orchards, famous clay minerals.';
-      case 'Tobruk': return 'Strategic eastern coast. Access to Tobruk port, close maritime shipping proximity to Egypt, stable water desalination hubs.';
-      case 'Kufra': return 'Southeastern desert oasis. Outstanding freshwater fossil aquifers, highly productive wheat and alfalfa circles, remote border trade networks.';
-      case 'Al-Khoms': return 'Coastal trade center. Home to Al-Khoms port and cement factory clusters, with immediate maritime security zones.';
-      default: return 'Favorable regional trade and zoning regulations apply.';
-    }
+    return t.cityInsights[selectedCity] || (language === 'ar' ? 'تطبق لوائح الشراكة والتنظيم البلدي المفضلة.' : 'Favorable regional trade and zoning regulations apply.');
   };
 
   return (
-    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md max-w-3xl mx-auto">
+    <div className="bg-white border border-slate-200 rounded-2xl overflow-hidden shadow-md max-w-3xl mx-auto text-start" dir={language === 'ar' ? 'rtl' : 'ltr'}>
       {/* Quiz Progress header */}
       <div className="bg-slate-50 p-6 border-b border-slate-200 flex justify-between items-center">
         <div>
           <h3 className="text-sm font-bold tracking-wide text-slate-800 uppercase font-sans flex items-center gap-2">
             <Sparkles className="w-4 h-4 text-amber-550" />
-            INVESTMENT PROPOSAL INTAKE WIZARD
+            {t.onboardingTitle}
           </h3>
           <p className="text-xs text-slate-500 mt-1 font-sans">
-            Specify baseline operating parameters for localized Libyan economy modeling
+            {t.onboardingDesc}
           </p>
         </div>
-        <div className="text-xs font-mono text-slate-650 bg-white border border-slate-200 px-3 py-1 rounded-md">
-          Step {step} of {stepsCount}
+        <div className="text-xs font-mono text-slate-655 bg-white border border-slate-200 px-3 py-1 rounded-md shrink-0">
+          {t.stepCountText} {step} / {stepsCount}
         </div>
       </div>
 
@@ -98,21 +90,21 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               exit={{ opacity: 0, x: -15 }}
               className="space-y-5"
             >
-              <div className="flex items-center gap-3 mb-2 text-amber-600">
-                <Building2 className="w-5 h-5" />
+              <div className="flex items-center gap-3 mb-2 text-amber-605">
+                <Building2 className="w-5 h-5 shrink-0" />
                 <h4 className="text-sm font-bold font-sans uppercase tracking-wider text-slate-800">
-                  Venture Identity & Sector Class
+                  {language === 'ar' ? 'هوية المشروع وتصنيف النشاط' : 'Venture Identity & Sector Class'}
                 </h4>
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono">
-                  Proposed Business or Project Name
+                  {t.projectNameLabel}
                 </label>
                 <input
                   type="text"
                   required
-                  placeholder="e.g., Al-Ahli Concrete Block Factory or Misrata Cold Storage"
+                  placeholder={t.projectNamePlaceholder}
                   value={name}
                   onChange={e => setName(e.target.value)}
                   className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 placeholder-slate-400 focus:outline-none focus:border-amber-550 focus:ring-1 focus:ring-amber-550 font-sans shadow-inner"
@@ -123,7 +115,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono">
-                    Industry Sector Focus
+                    {t.industryLabel}
                   </label>
                   <select
                     value={industry}
@@ -131,19 +123,19 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
                     className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-550 font-sans"
                     id="intake_sector_select"
                   >
-                    <option value="Agriculture">Agriculture & Agritech</option>
-                    <option value="Manufacturing">Manufacturing & Heavy Industry</option>
-                    <option value="Technology">Technology & Digital Services</option>
-                    <option value="Solar & Energy">Solar, Power & Clean Energy</option>
-                    <option value="Water Desalination">Infrastructure & Desalination</option>
-                    <option value="Retail & Services">B2B/B2C Services & Retail</option>
-                    <option value="Healthcare">Healthcare & Specialized Pharma</option>
+                    <option value="Agriculture">{t.industries["Agriculture"]}</option>
+                    <option value="Manufacturing">{t.industries["Manufacturing"]}</option>
+                    <option value="Technology">{t.industries["Technology"]}</option>
+                    <option value="Solar & Energy">{t.industries["Solar & Energy"]}</option>
+                    <option value="Water Desalination">{t.industries["Water Desalination"]}</option>
+                    <option value="Retail & Services">{t.industries["Retail & Services"]}</option>
+                    <option value="Healthcare">{t.industries["Healthcare"]}</option>
                   </select>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono">
-                    Project Scale
+                    {t.projectScaleLabel}
                   </label>
                   <div className="grid grid-cols-3 gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200 text-xs">
                     {(['micro', 'sme', 'enterprise'] as ScaleType[]).map(s => (
@@ -151,12 +143,12 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
                         key={s}
                         type="button"
                         onClick={() => setScale(s)}
-                        className={`py-1.5 rounded-md transition font-medium capitalize cursor-pointer ${
+                        className={`py-1.5 rounded-md transition font-medium cursor-pointer ${
                           scale === s ? 'bg-[#0f172a] text-white font-bold' : 'text-slate-500 hover:text-slate-800'
                         }`}
                         id={`btn_scale_${s}`}
                       >
-                        {s}
+                        {t.scales[s]}
                       </button>
                     ))}
                   </div>
@@ -175,16 +167,16 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               className="space-y-5"
             >
               <div className="flex items-center gap-3 mb-2 text-indigo-600">
-                <MapPin className="w-5 h-5" />
+                <MapPin className="w-5 h-5 shrink-0" />
                 <h4 className="text-sm font-bold font-sans uppercase tracking-wider text-slate-800">
-                  Spatial Location & localized Zoning
+                  {t.spatialLocationTitle}
                 </h4>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono">
-                    Target Libyan Municipality
+                    {t.cityLabel}
                   </label>
                   <select
                     value={city}
@@ -192,22 +184,22 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
                     className="w-full bg-white border border-slate-200 rounded-lg px-4 py-2.5 text-sm text-slate-800 focus:outline-none focus:border-amber-550 font-sans"
                     id="intake_city_select"
                   >
-                    <option value="Tripoli">Tripoli (طرابلس)</option>
-                    <option value="Benghazi">Benghazi (بنغازي)</option>
-                    <option value="Misrata">Misrata (مصراتة)</option>
-                    <option value="Sabha">Sabha (سبها)</option>
-                    <option value="Gharyan">Gharyan (غريان)</option>
-                    <option value="Tobruk">Tobruk (طبرق)</option>
-                    <option value="Kufra">Kufra (الكفرة)</option>
-                    <option value="Al-Khoms">Al-Khoms (الخمس)</option>
+                    <option value="Tripoli">{t.cities["Tripoli"]} ({language === 'ar' ? 'طرابلس' : 'Tripoli'})</option>
+                    <option value="Benghazi">{t.cities["Benghazi"]} ({language === 'ar' ? 'بنغازي' : 'Benghazi'})</option>
+                    <option value="Misrata">{t.cities["Misrata"]} ({language === 'ar' ? 'مصراتة' : 'Misrata'})</option>
+                    <option value="Sabha">{t.cities["Sabha"]} ({language === 'ar' ? 'سبها' : 'Sabha'})</option>
+                    <option value="Gharyan">{t.cities["Gharyan"]} ({language === 'ar' ? 'غريان' : 'Gharyan'})</option>
+                    <option value="Tobruk">{t.cities["Tobruk"]} ({language === 'ar' ? 'طبرق' : 'Tobruk'})</option>
+                    <option value="Kufra">{t.cities["Kufra"]} ({language === 'ar' ? 'الكفرة' : 'Kufra'})</option>
+                    <option value="Al-Khoms">{t.cities["Al-Khoms"]} ({language === 'ar' ? 'الخمس' : 'Al-Khoms'})</option>
                   </select>
                 </div>
 
                 <div className="bg-slate-50 p-4 border border-slate-200 rounded-xl flex flex-col justify-center">
                   <h5 className="text-[10px] font-bold text-slate-450 uppercase tracking-wider">
-                    Geographical Context Insight:
+                    {t.geoContextTitle}:
                   </h5>
-                  <p className="text-xs text-slate-600 font-sans leading-relaxed mt-1.5">
+                  <p className="text-xs text-slate-600 font-sans leading-relaxed mt-1.5 leading-relaxed">
                     {getCityInsight(city)}
                   </p>
                 </div>
@@ -216,7 +208,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               <div className="bg-amber-50 border border-amber-200 p-4 rounded-xl flex items-start gap-3 mt-4">
                 <AlertTriangle className="w-5 h-5 text-amber-600 shrink-0 mt-0.5" />
                 <div className="text-xs text-slate-600 leading-relaxed font-sans">
-                  <strong>Standard Agricultural & Industrial Exemption:</strong> Under Libyan Investment codes (Law No. 9), registered private development capital located inside regional zoning boards is granted a 100% exemption on corporate tax liabilities and custom import tariffs. Our models auto-apply these incentives.
+                  <strong>{t.exemptionBlockTitle}:</strong> {t.exemptionBlockDesc}
                 </div>
               </div>
             </motion.div>
@@ -232,53 +224,54 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               className="space-y-5"
             >
               <div className="flex items-center gap-3 mb-2 text-emerald-600">
-                <Landmark className="w-5 h-5" />
+                <Landmark className="w-5 h-5 shrink-0" />
                 <h4 className="text-sm font-bold font-sans uppercase tracking-wider text-slate-800">
-                  Currency Regime & Utility Buffering
+                  {t.currencyRegimeTitle}
                 </h4>
               </div>
 
               <div className="grid grid-cols-1 md:grid-cols-2 gap-5">
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono flex justify-between">
-                    <span>Valuation Exchange Scheme</span>
-                    <span className="text-[9px] text-amber-600 lowercase">(Libyan Parallel Arbitrage)</span>
+                    <span>{t.valuationExchangeLabel}</span>
                   </label>
                   <div className="grid grid-cols-2 gap-2 bg-slate-50 p-1 rounded-lg border border-slate-200 text-xs text-center font-mono">
                     <button
                       type="button"
                       onClick={() => setExchangeRateMode('parallel')}
                       className={`py-2 rounded transition cursor-pointer ${
-                        exchangeRateMode === 'parallel' ? 'bg-amber-500/10 border border-amber-500/30 text-amber-700 font-bold' : 'text-slate-400 hover:text-slate-600'
+                        exchangeRateMode === 'parallel' ? 'bg-amber-500/10 border border-amber-550/30 text-amber-700 font-bold' : 'text-slate-400 hover:text-slate-600 bg-white'
                       }`}
                       id="btn_rate_parallel"
                     >
-                      Parallel (~7.20 LYD/$)
+                      {t.rates.parallel} (~7.20 {language === 'ar' ? 'د.ل' : 'LYD'})
                     </button>
                     <button
                       type="button"
                       onClick={() => setExchangeRateMode('official')}
                       className={`py-2 rounded transition cursor-pointer ${
-                        exchangeRateMode === 'official' ? 'bg-amber-500/10 border border-amber-500/30 text-amber-700 font-bold' : 'text-slate-400 hover:text-slate-600'
+                        exchangeRateMode === 'official' ? 'bg-amber-500/10 border border-amber-550/30 text-amber-700 font-bold' : 'text-slate-400 hover:text-slate-600 bg-white'
                       }`}
                       id="btn_rate_official"
                     >
-                      Official (~4.82 LYD/$)
+                      {t.rates.official} (~4.82 {language === 'ar' ? 'د.ل' : 'LYD'})
                     </button>
                   </div>
                   <span className="text-[10px] text-slate-500 leading-relaxed block mt-1.5 font-sans">
-                    Parallel rate reflects the real procurement cost of capital assets imported from international suppliers.
+                    {language === 'ar' 
+                      ? 'يعكس السعر الموازي التكلفة الحقيقية لتوريد خطوط الإنتاج والآلات والمواد الأساسية من الأسواق الدولية.'
+                      : 'Parallel rate reflects the real procurement cost of capital assets imported from international suppliers.'}
                   </span>
                 </div>
 
                 <div className="space-y-2">
                   <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono">
-                    Utility Grid Outage Backup
+                    {language === 'ar' ? 'إمدادات وموثوقية الطاقة والكهرباء' : 'Utility Grid Outage Backup'}
                   </label>
                   <label className="bg-slate-50 border border-slate-200 rounded-lg px-4 py-3 flex items-center justify-between cursor-pointer hover:border-slate-300 transition">
-                    <div className="flex flex-col pr-4">
-                      <span className="text-xs font-semibold text-slate-800">Dedicated Power Generator</span>
-                      <span className="text-[10px] text-slate-500 mt-1">Factor in heavy diesel back-up CapEx (Highly recommended in Libya)</span>
+                    <div className="flex flex-col pr-2 text-start">
+                      <span className="text-xs font-semibold text-slate-800">{language === 'ar' ? 'مولد كهربائي متكامل مخصص' : 'Dedicated Power Generator'}</span>
+                      <span className="text-[10px] text-slate-500 mt-1">{t.utilityRiskDesc}</span>
                     </div>
                     <input
                       type="checkbox"
@@ -293,8 +286,8 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
 
               <div className="space-y-2">
                 <div className="flex justify-between items-center text-xs font-bold text-slate-500 uppercase tracking-wider font-mono">
-                  <span>Target Discount Hurdles (Risk factor)</span>
-                  <span className="font-mono text-amber-600 font-bold">{Math.round(discountRate * 100)}% Discount rate</span>
+                  <span>{t.discountRateLabel}</span>
+                  <span className="font-mono text-amber-600 font-bold">{Math.round(discountRate * 100)}%</span>
                 </div>
                 <input
                    type="range"
@@ -307,7 +300,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
                    id="intake_discount_slider"
                 />
                 <span className="text-[10px] text-slate-500 block leading-relaxed font-sans">
-                  Traditional Libyan agricultural loans require a 10%-12% hurdle multiplier; high-uncertainty industrial/deep tech ranges from 14%-18%.
+                  {t.discountRateHelper}
                 </span>
               </div>
             </motion.div>
@@ -323,30 +316,29 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               className="space-y-4"
             >
               <div className="flex items-center gap-3 mb-2 text-purple-600">
-                <LibraryBig className="w-5 h-5" />
+                <LibraryBig className="w-5 h-5 shrink-0" />
                 <h4 className="text-sm font-bold font-sans uppercase tracking-wider text-slate-800">
-                  Project Description & Value Statement
+                  {t.projectBriefLabel}
                 </h4>
               </div>
 
               <div className="space-y-2">
                 <label className="text-xs font-bold text-slate-500 block uppercase tracking-wider font-mono flex justify-between">
-                  <span>Describe the business concept and goals</span>
-                  <span className="text-[10px] text-purple-600 font-mono">(Provides context for RAG report generation)</span>
+                  <span>{t.projectBriefLabel}</span>
                 </label>
                 <textarea
                   required
                   rows={4}
-                  placeholder="Detail what the business will make, how raw supplies will be sourced, pricing strategies, target consumer profiles, and how regional electricity or logistics obstacles are neutralized."
+                  placeholder={t.projectBriefPlaceholder}
                   value={description}
                   onChange={e => setDescription(e.target.value)}
-                  className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-xs text-slate-800 placeholder-slate-450 focus:outline-none focus:border-amber-550 focus:ring-1 focus:ring-amber-550 leading-relaxed font-sans shadow-inner"
+                  className="w-full bg-white border border-slate-200 rounded-lg px-4 py-3 text-xs text-slate-800 placeholder-slate-450 focus:outline-none focus:border-amber-550 focus:ring-1 focus:ring-amber-550 leading-relaxed font-sans shadow-inner text-start"
                   id="intake_project_description"
                 />
               </div>
 
               <div className="bg-slate-50 p-4 border border-slate-200 rounded-xl text-xs leading-relaxed text-slate-500 font-sans">
-                <strong>Consulting-Grade Output:</strong> Your text is ingested by our server-side LLM framework to generate exhaustive SWOT, PESTEL, and Porter&apos;s models customized to your location&apos;s parameters. Minimum 60 words recommended for high-quality investment summaries.
+                <strong>{t.onboardingSummaryTitle}:</strong> {t.onboardingSummaryDesc}
               </div>
             </motion.div>
           )}
@@ -361,7 +353,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
             id="btn_intake_back"
           >
             <ArrowLeft className="w-3.5 h-3.5" />
-            {step === 1 ? 'Cancel' : 'Prev Step'}
+            {step === 1 ? t.cancelBtn : t.prevBtn}
           </button>
 
           {step < stepsCount ? (
@@ -372,7 +364,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               className="px-5 py-2.5 text-xs font-bold text-white bg-[#0f172a] hover:bg-slate-800 transition rounded-lg flex items-center gap-1 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               id="btn_intake_next"
             >
-              Next Step
+              {t.nextBtn}
               <ArrowRight className="w-3.5 h-3.5" />
             </button>
           ) : (
@@ -382,7 +374,7 @@ export function IntakeForm({ onSubmit, onCancel, submitting }: IntakeProps) {
               className="px-6 py-2.5 text-xs font-bold text-white bg-[#0f172a] hover:bg-slate-800 transition rounded-lg flex items-center gap-2 shadow-sm disabled:opacity-50 disabled:cursor-not-allowed cursor-pointer"
               id="btn_intake_submit"
             >
-              {submitting ? 'Creating Investment Study...' : 'Generate Feasibility Report'}
+              {submitting ? (language === 'ar' ? 'جاري بناء النماذج الاستثمارية...' : 'Creating Investment Study...') : t.submitBtn}
               <Sparkles className="w-4 h-4" />
             </button>
           )}
